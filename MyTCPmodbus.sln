@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyTCPmodbus", "MyTCPmodbus.csproj", "{752FF475-867D-4651-A34B-CFD56F1CDF6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "..\Test\Test.csproj", "{4DD2C373-F2B6-4AB9-886F-6EA5479FCF59}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{752FF475-867D-4651-A34B-CFD56F1CDF6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{752FF475-867D-4651-A34B-CFD56F1CDF6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{752FF475-867D-4651-A34B-CFD56F1CDF6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{752FF475-867D-4651-A34B-CFD56F1CDF6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DD2C373-F2B6-4AB9-886F-6EA5479FCF59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DD2C373-F2B6-4AB9-886F-6EA5479FCF59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DD2C373-F2B6-4AB9-886F-6EA5479FCF59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DD2C373-F2B6-4AB9-886F-6EA5479FCF59}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {34802039-D66F-4A2E-8949-385CDB9CD8CD}
+	EndGlobalSection
+EndGlobal

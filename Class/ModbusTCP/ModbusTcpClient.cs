@@ -151,17 +151,17 @@ namespace MyTCPmodbus.Class.ModbusTCP
         /// <param name="endians">Последовательность передачи байт</param>
         /// <param name="count">Количество требуемых регистров. По умолчанию = 1</param>
         /// <returns>Возвращает расчетный параметр МВК</returns>
-        public float[] ReadHoldingFloat2(ushort register, Endians endians = Endians.Endians_2301, ushort count = 1)
+        public float[] ReadHoldingFloat(ushort register, Endians endians = Endians.Endians_2301, ushort count = 1)
         {
             try
             {
                 byte[] rVal = Read(Constant.FUNC_FOR_READ, register, (ushort)(count * Constant.USHORT_LENGTH));
 
-                PrintConsole.Print($"ReadHoldingFloat2 - rVal: {rVal.Length}", StatusMessage.Error);
+                PrintConsole.Print($"ReadHoldingFloat - rVal: {rVal.Length}", StatusMessage.Error);
 
                 float[] values = new float[rVal.Length / 4];
 
-                PrintConsole.Print($"ReadHoldingFloat2 - values: {values.Length}", StatusMessage.Error);
+                PrintConsole.Print($"ReadHoldingFloat - values: {values.Length}", StatusMessage.Error);
 
                 for (int i = 0; i < rVal.Length; i += Constant.FLOAT_LENGTH)
                 {
@@ -192,9 +192,9 @@ namespace MyTCPmodbus.Class.ModbusTCP
             }
 
 
-            
 
-            return null;
+
+            return Array.Empty<float>();
         }
 
     }

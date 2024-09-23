@@ -22,6 +22,7 @@ namespace MyTCPmodbus.Class.Repository
         {
             IPaddress = ipAddress;
             DatabaseDictionaryChannel = GetChannelDevices();
+            PrintDevice(1);
         }
 
         /// <summary>
@@ -44,7 +45,7 @@ namespace MyTCPmodbus.Class.Repository
                     {
                         for (int k = 0; k < dict[MVK.MvkList[i].Channel].Count; k++)
                         {
-                            if (dict[MVK.MvkList[i].Channel][k].Address < MVK.MvkList[i].Address)
+                            if (dict[MVK.MvkList[i].Channel][k].Address > MVK.MvkList[i].Address)
                             {
                                 dict[MVK.MvkList[i].Channel].Insert(k, MVK.MvkList[i]);
                                 break;
@@ -66,26 +67,56 @@ namespace MyTCPmodbus.Class.Repository
         public void SetValueDevice(float[] value, int channel)
         {
             int address = DatabaseDictionaryChannel[channel][0].Address;
-            DatabaseDictionaryChannel[channel][0].Value = value[0];
-            int count = 1;
+            int count = 0;
 
-            for (int i = 1; i < DatabaseDictionaryChannel[channel].Count; i++)
+            for (int i = 0; i < DatabaseDictionaryChannel[channel].Count; i++)
             {
 
                 while (count < value.Length)
                 {
-                    address += 2;
-
                     if (DatabaseDictionaryChannel[channel][i].Address == address)
                     {
-                        DatabaseDictionaryChannel[channel][0].Value = value[count];
+                        DatabaseDictionaryChannel[channel][i].Value = value[count];
+                        address += 2;
                         count++;
                         break;
                     }
 
+                    address += 2;
                     count++;
                 }
 
+            }
+        }
+
+
+        /// <summary>
+        /// Метод возвращает адрес первого регистра и количество регистров для опроса до последнего регистра устройства МВК
+        /// </summary>
+        /// <param name="channel">Номер канала устройства МВК</param>
+        /// <returns>Возвращает адрес первого регистра и количество регистров для опроса до последнего регистра устройства МВК</returns>
+        public int[] GetFirstAddressAndCountRegister(int channel)
+        {
+            int[] result = new int[2];
+
+            result[0] = DatabaseDictionaryChannel[channel][0].Address;
+
+            result[1] = ((DatabaseDictionaryChannel[channel][DatabaseDictionaryChannel[channel].Count - 1].Address) - (DatabaseDictionaryChannel[channel][0].Address) + 2) / 2;
+            PrintConsole.Print($"GetFirstAddressAndCountRegister - result: {result[1]}, ", StatusMessage.Inform);
+
+            return result;
+        }
+
+        public string GetEndianMvk(int channel)
+        {
+            return DatabaseDictionaryChannel[channel][0].Endian;
+        }
+
+        public void PrintDevice(int channel)
+        {
+           for (int i = 0; i < DatabaseDictionaryChannel[channel].Count; i++)
+            {
+                PrintConsole.PrintMVK(DatabaseDictionaryChannel[channel][i]);
             }
         }
     }

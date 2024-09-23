@@ -38,22 +38,25 @@ namespace MyTCPmodbus.Class.ModbusTCP
         }
 
 
-        private void ReadDataWithMVK(MVK mvk)
+        private void ReadDataWithMVK(string endian, int address, int count, int channel)
         {
             try
             {
-                float[] value = ModbusClient.ReadHoldingFloat2(ushort.Parse(mvk.Address.ToString()),
-                mvk.Endian == "3210" ? Endians.Endians_3210 : mvk.Endian == "0123" ? Endians.Endians_0123 : Endians.Endians_2301, 26);
+                float[] value = ModbusClient.ReadHoldingFloat(ushort.Parse(address.ToString()),
+                endian == "3210" ? Endians.Endians_3210 : endian == "0123" ? Endians.Endians_0123 : Endians.Endians_2301, (ushort)count);
 
-                repositoryChannelDevice.SetValueDevice(value, );
-                //if (value[0] != 0)
+                repositoryChannelDevice.SetValueDevice(value, channel);
+
+                //if (value.Length == 0)
                 //{
                 //    mvk.Value = value[0];
                 //}
+
+                repositoryChannelDevice.PrintDevice(channel);
             }
             catch (Exception ex)
             {
-                PrintConsole.Print($"Ошибка преобразования полученных параметров МВК! - {mvk.Address} - {ex.Message}", StatusMessage.Error);
+                PrintConsole.Print($"Ошибка преобразования полученных параметров МВК! - {ex.Message}", StatusMessage.Error);
             }
         }
 
@@ -65,7 +68,10 @@ namespace MyTCPmodbus.Class.ModbusTCP
 
                 foreach (var dicKey in repositoryChannelDevice.DatabaseDictionaryChannel)
                 {
+                    int[] addressAndCount = repositoryChannelDevice.GetFirstAddressAndCountRegister(dicKey.Key);
+                    PrintConsole.Print($"ModbusWorkStart: register: {addressAndCount[0]}, count: {addressAndCount[1]}", StatusMessage.Inform);
 
+                    ReadDataWithMVK(repositoryChannelDevice.GetEndianMvk(dicKey.Key), addressAndCount[0], addressAndCount[1], dicKey.Key);
                 }
 
                 //for (int i = 0; i < repositoryChannelDevice.DatabaseDictionaryChannel.Count; i++)

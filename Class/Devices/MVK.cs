@@ -50,7 +50,7 @@ namespace MyTCPmodbus.Class.Devices
             MvkList.Add(new MVK("192.168.8.30", "0123", 1, 8284));
             MvkList.Add(new MVK("192.168.8.30", "0123", 1, 8296));
             MvkList.Add(new MVK("192.168.8.30", "0123", 1, 8294));
-            MvkList.Add(new MVK("192.168.8.30", "0123", 1, 8284));
+            MvkList.Add(new MVK("192.168.8.30", "0123", 1, 8306));
             MvkList.Add(new MVK("192.168.8.30", "0123", 1, 8288));
             MvkList.Add(new MVK("192.168.8.30", "0123", 1, 8302));
         }

@@ -4,8 +4,6 @@ Console.WriteLine("My TCP modbus client");
 ModbusTcpWork.ModbusTcpWorksList[0].Start();
 
 
-Console.WriteLine();
-
 Console.ReadKey();
 
 

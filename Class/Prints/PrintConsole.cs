@@ -11,7 +11,7 @@ namespace MyTCPmodbus.Class.Prints
     {
         public static void Print(string text, StatusMessage status = StatusMessage.Inform) 
         { 
-            Console.WriteLine($"|{status}| - |{text}|");
+            Console.WriteLine($"|{status}| - |{DateTime.Now.ToString("HH:mm:ss.fffff")}| - |{text}|");
         }
 
         public static void PrintMVK(MVK mvk)

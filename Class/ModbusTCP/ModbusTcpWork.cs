@@ -15,6 +15,8 @@ namespace MyTCPmodbus.Class.ModbusTCP
 
         private RepositoryChannelDevice repositoryChannelDevice;
 
+        private MvkDspCounter MvkDspCounter {  get; set; }
+
         static ModbusTcpWork()
         {
             ModbusTcpWorksList = new List<ModbusTcpWork>();
@@ -35,6 +37,7 @@ namespace MyTCPmodbus.Class.ModbusTCP
         {
             repositoryChannelDevice = new RepositoryChannelDevice(modbusClient.IpAddress);
             ModbusClient = modbusClient;
+            MvkDspCounter = MvkDspCounter.MvkDspCounterList[0];
         }
 
 
@@ -60,32 +63,67 @@ namespace MyTCPmodbus.Class.ModbusTCP
             }
         }
 
+        private void ReadCounterWithMVK()
+        {
+            try
+            {
+                UInt32 value = ModbusClient.ReadHoldingUIntt32(ushort.Parse(MvkDspCounter.Address.ToString()),
+                MvkDspCounter.Endian == "3210" ? Endians.Endians_3210 : MvkDspCounter.Endian == "0123" ? Endians.Endians_0123 : Endians.Endians_2301);
+
+
+                if (value != 0 && value != MvkDspCounter.Value)
+                {
+                    MvkDspCounter.Value = value;
+                    PrintConsole.Print($"ReadCounterWithMVK: Счетчика выполненых процедур: {value}", StatusMessage.Inform);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                PrintConsole.Print($"Ошибка преобразования полученных параметров счетчика выполненых процедур МВК! - ReadCounterWithMVK - {ex.Message}", StatusMessage.Error);
+            }
+        }
+
 
         private void ModbusWorkStart()
         {
-            if (ModbusClient.IsConnect)
-            {
-
-                foreach (var dicKey in repositoryChannelDevice.DatabaseDictionaryChannel)
+            //for (int i = 0; i < 100000; i++)
+            //{
+                if (ModbusClient.IsConnect)
                 {
-                    int[] addressAndCount = repositoryChannelDevice.GetFirstAddressAndCountRegister(dicKey.Key);
-                    PrintConsole.Print($"ModbusWorkStart: register: {addressAndCount[0]}, count: {addressAndCount[1]}", StatusMessage.Inform);
+                    for (int i = 0; i < 100000; i++)
+                    {
+                        ReadCounterWithMVK();
+                        Thread.Sleep(500);
 
-                    ReadDataWithMVK(repositoryChannelDevice.GetEndianMvk(dicKey.Key), addressAndCount[0], addressAndCount[1], dicKey.Key);
+                    if (!ModbusClient.IsConnect)
+                        ModbusClient.ConnectTCP();
+
+                }
+                
+                        
+                    
+
+
+                    //foreach (var dicKey in repositoryChannelDevice.DatabaseDictionaryChannel)
+                    //{
+                    //    int[] addressAndCount = repositoryChannelDevice.GetFirstAddressAndCountRegister(dicKey.Key);
+                    //    PrintConsole.Print($"ModbusWorkStart: register: {addressAndCount[0]}, count: {addressAndCount[1]}", StatusMessage.Inform);
+
+                    //    ReadDataWithMVK(repositoryChannelDevice.GetEndianMvk(dicKey.Key), addressAndCount[0], addressAndCount[1], dicKey.Key);
+                    //}
+
+
+                    PrintConsole.Print($"----------------------------------", StatusMessage.Inform);
+                }
+                else
+                {
+                    //Thread.Sleep(1000);
+                    ModbusClient.ConnectTCP();
                 }
 
-                //for (int i = 0; i < repositoryChannelDevice.DatabaseDictionaryChannel.Count; i++)
-                //{
-                //    ReadDataWithMVK(repositoryChannelDevice.DatabaseDictionaryChannel.K);
-                //}
-                
-
-                PrintConsole.Print($"----------------------------------", StatusMessage.Inform);
-            }
-            else
-            {
-                ModbusClient.ConnectTCP();
-            }
+            //    Thread.Sleep(500);
+            //}         
         }
 
         public void Start()

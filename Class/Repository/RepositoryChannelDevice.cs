@@ -22,7 +22,7 @@ namespace MyTCPmodbus.Class.Repository
         {
             IPaddress = ipAddress;
             DatabaseDictionaryChannel = GetChannelDevices();
-            PrintDevice(1);
+            //PrintDevice(1);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace MyTCPmodbus.Class.Repository
             result[0] = DatabaseDictionaryChannel[channel][0].Address;
 
             result[1] = ((DatabaseDictionaryChannel[channel][DatabaseDictionaryChannel[channel].Count - 1].Address) - (DatabaseDictionaryChannel[channel][0].Address) + 2) / 2;
-            PrintConsole.Print($"GetFirstAddressAndCountRegister - result: {result[1]}, ", StatusMessage.Inform);
+            //PrintConsole.Print($"GetFirstAddressAndCountRegister - result: {result[1]}, ", StatusMessage.Inform);
 
             return result;
         }

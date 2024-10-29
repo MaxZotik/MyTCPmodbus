@@ -43,6 +43,5 @@ namespace MyTCPmodbus.Class.Packets
                 1                       //Unit Identifier
             };
         }
-
     }
 }

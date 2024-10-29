@@ -26,18 +26,29 @@ namespace MyTCPmodbus.Class.ModbusTCP
             this.IpAddress = ipAddress;
             iPAddress = IPAddress.Parse(ipAddress);
             endPoint = new IPEndPoint(iPAddress, port);
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            IsConnect = false;
+            ConnectTCP();
+        }
+
+        private void CloseTCP()
+        {
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Disconnect(true);
             IsConnect = false;
         }
 
         public void ConnectTCP()
         {
-            
+
+            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
             try
             {
                 socket.Connect(this.endPoint);
                 socket.SendTimeout = Constant.DEFAULT_TIME_OUT;
                 socket.ReceiveTimeout = Constant.DEFAULT_TIME_OUT;
+                socket.NoDelay = true;
                 IsConnect = true;
                 PrintConsole.Print($"Соединение по IP: {IpAddress} установлено!", StatusMessage.Inform);
             }
@@ -63,35 +74,38 @@ namespace MyTCPmodbus.Class.ModbusTCP
         {
             try
             {
-                for (int i = 0; i < packet.Length; i++)
-                {
-                    PrintConsole.Print($"SendReceive2 - packet: length: {packet.Length} - i: {i} - value: {packet[i]}", StatusMessage.Action);
-                }
+                //for (int i = 0; i < packet.Length; i++)
+                //{
+                //    PrintConsole.Print($"SendReceive2 - packet: length: {packet.Length} - i: {i} - value: {packet[i]}", StatusMessage.Action);
+                //}
 
                 int count = packet[packet.Length - 1] * 2 + 9;
 
                 byte[] mbap = new byte[count];
 
 
-                socket.Send(packet);
-                socket.Receive(mbap, 0, mbap.Length, SocketFlags.None);
+                socket.Send(packet, 0, packet.Length, SocketFlags.None, out SocketError errorCode);
+                socket.Receive(mbap, 0, mbap.Length, SocketFlags.None, out SocketError socketError);
 
-                for (int i = 0; i < mbap.Length; i++)
-                {
-                    PrintConsole.Print($"SendReceive2 - mbap: length: {mbap.Length} - i: {i} - value: {mbap[i]}", StatusMessage.Action);
-                }
+                PrintConsole.Print($"SendReceive2 - ОШИБКА СОКЕТА SEND: {errorCode}", StatusMessage.Action);
+                PrintConsole.Print($"SendReceive2 - ОШИБКА СОКЕТА RECEIVE: {socketError}", StatusMessage.Action);
+
+                //for (int i = 0; i < mbap.Length; i++)
+                //{
+                //    PrintConsole.Print($"SendReceive2 - mbap: length: {mbap.Length} - i: {i} - value: {mbap[i]}", StatusMessage.Action);
+                //}
 
                 return mbap;
             }
             catch (SocketException se)
             {
-                IsConnect = false;
+                CloseTCP();
                 PrintConsole.Print($"Соединение по IP: {IpAddress} разорвано! {se.Message}", StatusMessage.Error);
                 return new byte[1] { 0 };
             }
             catch (Exception ex)
             {
-                IsConnect = false;
+                CloseTCP();
                 PrintConsole.Print($"Соединение по IP: {IpAddress} разорвано! {ex.Message}", StatusMessage.Error);
                 return new byte[1] { 0 };
             }
@@ -111,33 +125,37 @@ namespace MyTCPmodbus.Class.ModbusTCP
             byte[] rtn;
             byte[] packet = packetModbus.MakePacket(function, register, count);
 
-            for (int i = 0; i < packet.Length; i++)
-            {
-                PrintConsole.Print($"Read - packet: length: {packet.Length} - i: {i} - value: {packet[i]}", StatusMessage.Action);
-            }
+            //for (int i = 0; i < packet.Length; i++)
+            //{
+            //    PrintConsole.Print($"Read - packet: length: {packet.Length} - i: {i} - value: {packet[i]}", StatusMessage.Action);
+            //}
 
             byte[] mbap = packetModbus.MakeMBAP();
 
-            for (int i = 0; i < mbap.Length; i++)
-            {
-                PrintConsole.Print($"Read - mbap: length: {mbap.Length} - i: {i} - value: {mbap[i]}", StatusMessage.Action);
-            }
+            //for (int i = 0; i < mbap.Length; i++)
+            //{
+            //    PrintConsole.Print($"Read - mbap: length: {mbap.Length} - i: {i} - value: {mbap[i]}", StatusMessage.Action);
+            //}
 
             byte[] response = SendReceive(mbap.Concat(packet).ToArray());
 
-            //if (response[0] == 0)
-            //{
-            //    return response;
-            //}
+            if (response[0] == 0 && response.Length == 1 || response[8] == 0)
+            {
+                return new byte[1] { 0 };
+            }
 
+            //for (int i = 0; i < response.Length; i++)
+            //{
+            //    PrintConsole.Print($"Read - response: length: {response.Length} - i: {i} - value: {response[i]}", StatusMessage.Action);
+            //}
 
             rtn = new byte[response[8]];
             Array.Copy(response, 9, rtn, 0, rtn.Length);
 
-            for (int i = 0; i < rtn.Length; i++)
-            {
-                PrintConsole.Print($"Read - rtn: length: {rtn.Length} - i: {i} - value: {rtn[i]}", StatusMessage.Action);
-            }
+            //for (int i = 0; i < rtn.Length; i++)
+            //{
+            //    PrintConsole.Print($"Read - rtn: length: {rtn.Length} - i: {i} - value: {rtn[i]}", StatusMessage.Action);
+            //}
 
             return rtn;
         }
@@ -157,11 +175,11 @@ namespace MyTCPmodbus.Class.ModbusTCP
             {
                 byte[] rVal = Read(Constant.FUNC_FOR_READ, register, (ushort)(count * Constant.USHORT_LENGTH));
 
-                PrintConsole.Print($"ReadHoldingFloat - rVal: {rVal.Length}", StatusMessage.Error);
+                //PrintConsole.Print($"ReadHoldingFloat - rVal: {rVal.Length}", StatusMessage.Error);
 
                 float[] values = new float[rVal.Length / 4];
 
-                PrintConsole.Print($"ReadHoldingFloat - values: {values.Length}", StatusMessage.Error);
+                //PrintConsole.Print($"ReadHoldingFloat - values: {values.Length}", StatusMessage.Error);
 
                 for (int i = 0; i < rVal.Length; i += Constant.FLOAT_LENGTH)
                 {
@@ -179,10 +197,10 @@ namespace MyTCPmodbus.Class.ModbusTCP
                     }
                 }
 
-                for (int i = 0; i < values.Length; i++)
-                {
-                    PrintConsole.Print($"{values[i]}", StatusMessage.Action);
-                }
+                //for (int i = 0; i < values.Length; i++)
+                //{
+                //    PrintConsole.Print($"{values[i]}", StatusMessage.Action);
+                //}
 
                 return values;
             }
@@ -197,5 +215,48 @@ namespace MyTCPmodbus.Class.ModbusTCP
             return Array.Empty<float>();
         }
 
+
+        public UInt32 ReadHoldingUIntt32(ushort register, Endians endians = Endians.Endians_2301, ushort count = 1)
+        {
+            UInt32 values = 0;
+
+            try
+            {
+                byte[] rVal = Read(Constant.FUNC_FOR_READ, register, (ushort)(count * Constant.USHORT_LENGTH));
+
+                //PrintConsole.Print($"ReadHoldingUIntt32 - rVal: {rVal.Length}", StatusMessage.Error);
+
+                if (rVal[0] == 0 && rVal.Length == 1)
+                {
+                    return values;
+                }
+
+                for (int i = 0; i < rVal.Length; i += Constant.FLOAT_LENGTH)
+                {
+                    if (endians == Endians.Endians_2301)
+                    {
+                        values = BitConverter.ToUInt32(new byte[] { rVal[i + 1], rVal[i], rVal[i + 3], rVal[i + 2] }, 0);
+                    }
+                    else if (endians == Endians.Endians_0123)
+                    {
+                        values = BitConverter.ToUInt32(new byte[] { rVal[i + 3], rVal[i + 2], rVal[i + 1], rVal[i] }, 0);
+                    }
+                    else
+                    {
+                        values = BitConverter.ToUInt32(new byte[] { rVal[i], rVal[i + 1], rVal[i + 2], rVal[i + 3] }, 0);
+                    }
+                }
+
+                //PrintConsole.Print($"ReadHoldingUIntt32 - values: {values}", StatusMessage.Action);
+
+                return values;
+            }
+            catch (Exception ex)
+            {
+                PrintConsole.Print($"ReadHoldingUIntt32 - Ошибка преобразования полученных расчетных параметров счетчика выполненых процедур МВК! {ex.Message}", StatusMessage.Error);
+            }
+
+            return values;
+        }
     }
 }
